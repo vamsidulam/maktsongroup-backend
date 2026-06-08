@@ -4,9 +4,10 @@ const { uploadImage, slugify } = require("../../helpers/upload");
 async function createBusiness({ input, files, actor }) {
   const actorId = actor && actor.id ? actor.id : null;
 
-  let logoUrl = "";
-  let backgroundImageUrl = "";
-  let galleryImageUrls = [];
+  let logo = "";
+  let backgroundImage = "";
+  const products = input.products || [];
+  const slideImages = [];
 
   const businessFolder = `businesses/${slugify(input.name)}`;
 
@@ -20,7 +21,7 @@ async function createBusiness({ input, files, actor }) {
       mimetype: logoFile.mimetype,
       originalname: logoFile.originalname,
     });
-    logoUrl = uploadResult.secure_url;
+    logo = uploadResult.secure_url;
   }
 
   // Upload background image
@@ -33,32 +34,52 @@ async function createBusiness({ input, files, actor }) {
       mimetype: bgFile.mimetype,
       originalname: bgFile.originalname,
     });
-    backgroundImageUrl = uploadResult.secure_url;
+    backgroundImage = uploadResult.secure_url;
   }
 
-  // Upload gallery images
-  if (files.galleryImages && files.galleryImages.length > 0) {
-    for (let i = 0; i < files.galleryImages.length; i++) {
-      const galleryFile = files.galleryImages[i];
+  // Upload slide images
+  if (files.slideImages && files.slideImages.length > 0) {
+    for (let i = 0; i < files.slideImages.length; i++) {
+      const slideFile = files.slideImages[i];
       const uploadResult = await uploadImage({
-        buffer: galleryFile.buffer,
-        folder: businessFolder,
-        publicId: `gallery_${i}`,
-        mimetype: galleryFile.mimetype,
-        originalname: galleryFile.originalname,
+        buffer: slideFile.buffer,
+        folder: `${businessFolder}/slides`,
+        publicId: `slide_${i}`,
+        mimetype: slideFile.mimetype,
+        originalname: slideFile.originalname,
       });
-      galleryImageUrls.push(uploadResult.secure_url);
+      slideImages.push(uploadResult.secure_url);
+    }
+  }
+
+  // Upload product images
+  if (files.productImages && files.productImages.length > 0) {
+    for (let i = 0; i < files.productImages.length; i++) {
+      const productFile = files.productImages[i];
+      const uploadResult = await uploadImage({
+        buffer: productFile.buffer,
+        folder: `${businessFolder}/products`,
+        publicId: `product_${i}`,
+        mimetype: productFile.mimetype,
+        originalname: productFile.originalname,
+      });
+
+      // Assign image to corresponding product
+      if (products[i]) {
+        products[i].image = uploadResult.secure_url;
+      }
     }
   }
 
   const business = await Business.create({
     name: input.name,
+    logo,
+    backgroundImage,
     description: input.description,
-    url: input.url,
-    year: input.year,
-    logoUrl,
-    backgroundImageUrl,
-    galleryImageUrls,
+    category: input.category,
+    shortNote: input.shortNote || "",
+    slideImages,
+    products,
     createdBy: actorId,
     updatedBy: actorId,
   });

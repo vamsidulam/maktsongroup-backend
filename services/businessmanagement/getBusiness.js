@@ -14,7 +14,12 @@ async function getBusiness({ id, includeDeleted }) {
     throw err;
   }
 
-  return business;
+  // Transform _id to id for frontend compatibility
+  return {
+    ...business,
+    id: String(business._id),
+    _id: undefined
+  };
 }
 
 module.exports = getBusiness;

@@ -16,9 +16,16 @@ async function listBusinesses({ page, limit, search, includeDeleted, noPaginatio
       .sort({ createdAt: -1 })
       .lean();
 
+    // Transform _id to id for frontend compatibility
+    const transformed = rows.map(row => ({
+      ...row,
+      id: String(row._id),
+      _id: undefined
+    }));
+
     return {
-      rows,
-      total: rows.length,
+      rows: transformed,
+      total: transformed.length,
     };
   }
 
@@ -34,10 +41,17 @@ async function listBusinesses({ page, limit, search, includeDeleted, noPaginatio
     Business.countDocuments(filter),
   ]);
 
+  // Transform _id to id for frontend compatibility
+  const transformed = rows.map(row => ({
+    ...row,
+    id: String(row._id),
+    _id: undefined
+  }));
+
   const pages = Math.ceil(total / limit);
 
   return {
-    rows,
+    rows: transformed,
     total,
     page,
     limit,

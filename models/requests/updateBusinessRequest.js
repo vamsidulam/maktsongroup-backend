@@ -3,11 +3,15 @@ const { z } = require("zod");
 const updateBusinessRequest = z.object({
   name: z.string().min(1, "Business name is required").trim().optional(),
   description: z.string().min(1, "Description is required").trim().optional(),
-  url: z.string().url("Invalid URL").trim().optional(),
-  year: z.coerce.number().int().min(1900).max(new Date().getFullYear()).optional(),
-  removeLogoImage: z.coerce.boolean().optional(),
+  category: z.string().min(1, "Category is required").trim().optional(),
+  shortNote: z.string().optional(),
+  products: z.array(z.object({
+    name: z.string().min(1, "Product name is required"),
+    description: z.string().optional().default("")
+  })).optional(),
+  removeLogo: z.coerce.boolean().optional(),
   removeBackgroundImage: z.coerce.boolean().optional(),
-  removeGalleryImages: z.array(z.coerce.number()).optional(),
+  removeProductImages: z.array(z.coerce.number()).optional(), // Array of product indices to remove images
 });
 
 module.exports = updateBusinessRequest;

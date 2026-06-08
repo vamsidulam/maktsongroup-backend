@@ -79,13 +79,39 @@ router.post(
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "backgroundImage", maxCount: 1 },
-    { name: "galleryImages", maxCount: 10 },
+    { name: "slideImages", maxCount: 10 }, // Support multiple slide images
+    { name: "productImages", maxCount: 20 }, // Support multiple product images
   ]),
-  validateBody(createBusinessRequest),
   async (req, res, next) => {
     try {
+      // Parse products if it's a string
+      if (req.body.products && typeof req.body.products === 'string') {
+        try {
+          req.body.products = JSON.parse(req.body.products);
+        } catch (e) {
+          return res.status(400).json({
+            success: false,
+            error: "ValidationError",
+            issues: [{ path: "products", message: "Invalid JSON format for products" }],
+          });
+        }
+      }
+
+      // Validate the request body
+      const parsed = createBusinessRequest.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          success: false,
+          error: "ValidationError",
+          issues: parsed.error.issues.map((i) => ({
+            path: i.path.join("."),
+            message: i.message,
+          })),
+        });
+      }
+
       const business = await createBusiness({
-        input: req.validated,
+        input: parsed.data,
         files: req.files,
         actor: req.user,
       });
@@ -104,20 +130,24 @@ router.patch(
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "backgroundImage", maxCount: 1 },
-    { name: "galleryImages", maxCount: 10 },
+    { name: "slideImages", maxCount: 10 },
+    { name: "productImages", maxCount: 20 },
   ]),
   async (req, res, next) => {
     try {
       const payload = {};
       if (req.body.name !== undefined) payload.name = req.body.name;
       if (req.body.description !== undefined) payload.description = req.body.description;
-      if (req.body.url !== undefined) payload.url = req.body.url;
-      if (req.body.year !== undefined) payload.year = req.body.year;
-      if (req.body.removeLogoImage !== undefined) payload.removeLogoImage = req.body.removeLogoImage;
+      if (req.body.category !== undefined) payload.category = req.body.category;
+      if (req.body.shortNote !== undefined) payload.shortNote = req.body.shortNote;
+      if (req.body.products !== undefined) {
+        payload.products = JSON.parse(req.body.products);
+      }
+      if (req.body.removeLogo !== undefined) payload.removeLogo = req.body.removeLogo;
       if (req.body.removeBackgroundImage !== undefined)
         payload.removeBackgroundImage = req.body.removeBackgroundImage;
-      if (req.body.removeGalleryImages !== undefined)
-        payload.removeGalleryImages = req.body.removeGalleryImages;
+      if (req.body.removeProductImages !== undefined)
+        payload.removeProductImages = req.body.removeProductImages;
 
       const hasAnyField = Object.keys(payload).length > 0 || !!req.files;
       if (!hasAnyField) {
@@ -129,7 +159,7 @@ router.patch(
       }
 
       const parsed = updateBusinessRequest.safeParse(
-        Object.keys(payload).length > 0 ? payload : { removeLogoImage: false }
+        Object.keys(payload).length > 0 ? payload : { removeLogo: false }
       );
       if (!parsed.success) {
         return res.status(400).json({

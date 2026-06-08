@@ -16,8 +16,13 @@ async function updateBusiness({ id, patch, files, actor }) {
   // Update basic fields
   if (patch.name !== undefined) business.name = patch.name;
   if (patch.description !== undefined) business.description = patch.description;
-  if (patch.url !== undefined) business.url = patch.url;
-  if (patch.year !== undefined) business.year = patch.year;
+  if (patch.category !== undefined) business.category = patch.category;
+  if (patch.shortNote !== undefined) business.shortNote = patch.shortNote;
+
+  // Update products array
+  if (patch.products !== undefined) {
+    business.products = patch.products;
+  }
 
   // Handle logo upload/removal
   if (files?.logo && files.logo[0]) {
@@ -29,14 +34,14 @@ async function updateBusiness({ id, patch, files, actor }) {
       mimetype: logoFile.mimetype,
       originalname: logoFile.originalname,
     });
-    business.logoUrl = uploadResult.secure_url;
+    business.logo = uploadResult.secure_url;
   }
 
-  if (patch.removeLogoImage) {
-    if (business.logoUrl) {
-      await deleteImage(business.logoUrl);
+  if (patch.removeLogo) {
+    if (business.logo) {
+      await deleteImage(business.logo);
     }
-    business.logoUrl = "";
+    business.logo = "";
   }
 
   // Handle background image upload/removal
@@ -49,39 +54,44 @@ async function updateBusiness({ id, patch, files, actor }) {
       mimetype: bgFile.mimetype,
       originalname: bgFile.originalname,
     });
-    business.backgroundImageUrl = uploadResult.secure_url;
+    business.backgroundImage = uploadResult.secure_url;
   }
 
   if (patch.removeBackgroundImage) {
-    if (business.backgroundImageUrl) {
-      await deleteImage(business.backgroundImageUrl);
+    if (business.backgroundImage) {
+      await deleteImage(business.backgroundImage);
     }
-    business.backgroundImageUrl = "";
+    business.backgroundImage = "";
   }
 
-  // Handle gallery images upload
-  if (files?.galleryImages && files.galleryImages.length > 0) {
-    for (let i = 0; i < files.galleryImages.length; i++) {
-      const galleryFile = files.galleryImages[i];
+  // Handle product images upload
+  if (files?.productImages && files.productImages.length > 0) {
+    for (let i = 0; i < files.productImages.length; i++) {
+      const productFile = files.productImages[i];
       const uploadResult = await uploadImage({
-        buffer: galleryFile.buffer,
-        folder: businessFolder,
-        publicId: `gallery_${Date.now()}_${i}`,
-        mimetype: galleryFile.mimetype,
-        originalname: galleryFile.originalname,
+        buffer: productFile.buffer,
+        folder: `${businessFolder}/products`,
+        publicId: `product_${Date.now()}_${i}`,
+        mimetype: productFile.mimetype,
+        originalname: productFile.originalname,
       });
-      business.galleryImageUrls.push(uploadResult.secure_url);
+
+      // Assign to corresponding product if it exists
+      if (business.products[i]) {
+        business.products[i].image = uploadResult.secure_url;
+      }
     }
   }
 
-  // Handle gallery image removal (by index)
-  if (patch.removeGalleryImages && Array.isArray(patch.removeGalleryImages)) {
-    const indicesToRemove = patch.removeGalleryImages.sort((a, b) => b - a);
-    for (const idx of indicesToRemove) {
-      if (idx >= 0 && idx < business.galleryImageUrls.length) {
-        const imageUrl = business.galleryImageUrls[idx];
-        await deleteImage(imageUrl);
-        business.galleryImageUrls.splice(idx, 1);
+  // Handle product image removal (by index)
+  if (patch.removeProductImages && Array.isArray(patch.removeProductImages)) {
+    for (const idx of patch.removeProductImages) {
+      if (idx >= 0 && idx < business.products.length) {
+        const imageUrl = business.products[idx].image;
+        if (imageUrl) {
+          await deleteImage(imageUrl);
+          business.products[idx].image = "";
+        }
       }
     }
   }

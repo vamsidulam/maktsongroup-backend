@@ -7,6 +7,7 @@ const { ensureUploadsDir } = require("./helpers/upload");
 const authRouter = require("./routes/auth");
 const businessManagementRouter = require("./routes/businessmanagement");
 const seedRouter = require("./routes/seed");
+const contactRouter = require("./routes/contact");
 const requireAdmin = require("./middleware/requireAdmin");
 
 const app = express();
@@ -14,7 +15,7 @@ const app = express();
 app.use(
   cors({
     origin: [
-      "http://localhost:5173",
+      "http://localhost:8082",
       "http://localhost:8080",
       process.env.FRONTEND_URL,
     ],
@@ -40,6 +41,9 @@ app.use("/seed", seedRouter);
 
 // Auth endpoint (public)
 app.use("/auth", authRouter);
+
+// Contact endpoint (public)
+app.use("/contact", contactRouter);
 
 // Public routes
 app.use("/businesses", businessManagementRouter);

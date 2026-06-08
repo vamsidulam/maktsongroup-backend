@@ -3,12 +3,19 @@ const { Schema, model, models, Types } = require("mongoose");
 const businessSchema = new Schema(
   {
     name: { type: String, required: true, trim: true, index: true },
-    description: { type: String, required: true, trim: true },
-    url: { type: String, required: true, trim: true },
-    year: { type: Number, required: true },
-    logoUrl: { type: String, default: "" },
-    backgroundImageUrl: { type: String, default: "" },
-    galleryImageUrls: { type: [String], default: [] },
+    logo: { type: String, default: "" },                    // Logo image URL
+    backgroundImage: { type: String, default: "" },         // Background/hero image URL
+    description: { type: String, required: true, trim: true }, // Short description
+    category: { type: String, required: true, trim: true }, // Business category
+    shortNote: { type: String, default: "" },               // Tagline/short note
+    slideImages: [{ type: String }],                        // Slider/gallery images
+    products: [                                             // Products with images
+      {
+        name: { type: String, required: true },
+        image: { type: String, default: "" },              // Product image URL
+        description: { type: String, default: "" }
+      }
+    ],
     createdBy: { type: Types.ObjectId, ref: "User", default: null },
     updatedBy: { type: Types.ObjectId, ref: "User", default: null },
     deletedAt: { type: Date, default: null, index: true },
