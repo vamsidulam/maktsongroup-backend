@@ -37,38 +37,40 @@ async function createBusiness({ input, files, actor }) {
     backgroundImage = uploadResult.secure_url;
   }
 
-  // Upload slide images
+  // Upload slide images in parallel
   if (files.slideImages && files.slideImages.length > 0) {
-    for (let i = 0; i < files.slideImages.length; i++) {
-      const slideFile = files.slideImages[i];
-      const uploadResult = await uploadImage({
+    const slideUploadPromises = files.slideImages.map((slideFile, i) =>
+      uploadImage({
         buffer: slideFile.buffer,
         folder: `${businessFolder}/slides`,
         publicId: `slide_${i}`,
         mimetype: slideFile.mimetype,
         originalname: slideFile.originalname,
-      });
-      slideImages.push(uploadResult.secure_url);
-    }
+      })
+    );
+    const slideResults = await Promise.all(slideUploadPromises);
+    slideResults.forEach(result => slideImages.push(result.secure_url));
   }
 
-  // Upload product images
+  // Upload product images in parallel
   if (files.productImages && files.productImages.length > 0) {
-    for (let i = 0; i < files.productImages.length; i++) {
-      const productFile = files.productImages[i];
-      const uploadResult = await uploadImage({
+    const productUploadPromises = files.productImages.map((productFile, i) =>
+      uploadImage({
         buffer: productFile.buffer,
         folder: `${businessFolder}/products`,
         publicId: `product_${i}`,
         mimetype: productFile.mimetype,
         originalname: productFile.originalname,
-      });
+      })
+    );
+    const productResults = await Promise.all(productUploadPromises);
 
-      // Assign image to corresponding product
+    // Assign images to corresponding products
+    productResults.forEach((result, i) => {
       if (products[i]) {
-        products[i].image = uploadResult.secure_url;
+        products[i].image = result.secure_url;
       }
-    }
+    });
   }
 
   const business = await Business.create({
