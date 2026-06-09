@@ -147,6 +147,11 @@ router.patch(
       if (req.body.products !== undefined) {
         payload.products = JSON.parse(req.body.products);
       }
+      if (req.body.existingSlideImages !== undefined) {
+        payload.existingSlideImages = typeof req.body.existingSlideImages === 'string'
+          ? JSON.parse(req.body.existingSlideImages)
+          : req.body.existingSlideImages;
+      }
       if (req.body.removeLogo !== undefined) payload.removeLogo = req.body.removeLogo;
       if (req.body.removeBackgroundImage !== undefined)
         payload.removeBackgroundImage = req.body.removeBackgroundImage;

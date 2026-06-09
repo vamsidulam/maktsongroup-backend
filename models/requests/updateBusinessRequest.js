@@ -9,9 +9,10 @@ const updateBusinessRequest = z.object({
     name: z.string().min(1, "Product name is required"),
     description: z.string().optional().default("")
   })).optional(),
+  existingSlideImages: z.array(z.string()).optional(),
   removeLogo: z.coerce.boolean().optional(),
   removeBackgroundImage: z.coerce.boolean().optional(),
-  removeProductImages: z.array(z.coerce.number()).optional(), // Array of product indices to remove images
+  removeProductImages: z.array(z.coerce.number()).optional(),
 });
 
 module.exports = updateBusinessRequest;

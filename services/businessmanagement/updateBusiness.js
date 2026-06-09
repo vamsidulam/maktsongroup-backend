@@ -64,6 +64,30 @@ async function updateBusiness({ id, patch, files, actor }) {
     business.backgroundImage = "";
   }
 
+  // Handle slide images
+  if (patch.existingSlideImages !== undefined || (files?.slideImages && files.slideImages.length > 0)) {
+    // Start with existing slides the user kept
+    const keptSlides = patch.existingSlideImages || [];
+
+    // Upload new slide images in parallel
+    let newSlideUrls = [];
+    if (files?.slideImages && files.slideImages.length > 0) {
+      const slideUploadPromises = files.slideImages.map((slideFile, i) =>
+        uploadImage({
+          buffer: slideFile.buffer,
+          folder: `${businessFolder}/slides`,
+          publicId: `slide_${Date.now()}_${i}`,
+          mimetype: slideFile.mimetype,
+          originalname: slideFile.originalname,
+        })
+      );
+      const slideResults = await Promise.all(slideUploadPromises);
+      newSlideUrls = slideResults.map((r) => r.secure_url);
+    }
+
+    business.slideImages = [...keptSlides, ...newSlideUrls];
+  }
+
   // Handle product images upload
   if (files?.productImages && files.productImages.length > 0) {
     for (let i = 0; i < files.productImages.length; i++) {
