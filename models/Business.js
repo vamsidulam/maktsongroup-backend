@@ -8,7 +8,8 @@ const businessSchema = new Schema(
     description: { type: String, required: true, trim: true }, // Short description
     category: { type: String, required: true, trim: true }, // Business category
     shortNote: { type: String, default: "" },               // Tagline/short note
-    slideImages: [{ type: String }],                        // Slider/gallery images
+    slideImages: [{ type: String }],                        // Slider/gallery images (desktop)
+    mobileSlideImages: [{ type: String }],                  // Slider images for mobile view
     products: [                                             // Products with images
       {
         name: { type: String, required: true },

@@ -8,6 +8,7 @@ async function createBusiness({ input, files, actor }) {
   let backgroundImage = "";
   const products = input.products || [];
   const slideImages = [];
+  const mobileSlideImages = [];
 
   const businessFolder = `businesses/${slugify(input.name)}`;
 
@@ -52,6 +53,21 @@ async function createBusiness({ input, files, actor }) {
     slideResults.forEach(result => slideImages.push(result.secure_url));
   }
 
+  // Upload mobile slide images in parallel
+  if (files.mobileSlideImages && files.mobileSlideImages.length > 0) {
+    const mobileSlideUploadPromises = files.mobileSlideImages.map((slideFile, i) =>
+      uploadImage({
+        buffer: slideFile.buffer,
+        folder: `${businessFolder}/mobile-slides`,
+        publicId: `mobile_slide_${i}`,
+        mimetype: slideFile.mimetype,
+        originalname: slideFile.originalname,
+      })
+    );
+    const mobileSlideResults = await Promise.all(mobileSlideUploadPromises);
+    mobileSlideResults.forEach(result => mobileSlideImages.push(result.secure_url));
+  }
+
   // Upload product images in parallel
   if (files.productImages && files.productImages.length > 0) {
     const productUploadPromises = files.productImages.map((productFile, i) =>
@@ -81,6 +97,7 @@ async function createBusiness({ input, files, actor }) {
     category: input.category,
     shortNote: input.shortNote || "",
     slideImages,
+    mobileSlideImages,
     products,
     createdBy: actorId,
     updatedBy: actorId,

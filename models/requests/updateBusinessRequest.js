@@ -10,6 +10,7 @@ const updateBusinessRequest = z.object({
     description: z.string().optional().default("")
   })).optional(),
   existingSlideImages: z.array(z.string()).optional(),
+  existingMobileSlideImages: z.array(z.string()).optional(),
   removeLogo: z.coerce.boolean().optional(),
   removeBackgroundImage: z.coerce.boolean().optional(),
   removeProductImages: z.array(z.coerce.number()).optional(),

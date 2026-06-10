@@ -88,6 +88,28 @@ async function updateBusiness({ id, patch, files, actor }) {
     business.slideImages = [...keptSlides, ...newSlideUrls];
   }
 
+  // Handle mobile slide images
+  if (patch.existingMobileSlideImages !== undefined || (files?.mobileSlideImages && files.mobileSlideImages.length > 0)) {
+    const keptMobileSlides = patch.existingMobileSlideImages || [];
+
+    let newMobileSlideUrls = [];
+    if (files?.mobileSlideImages && files.mobileSlideImages.length > 0) {
+      const mobileSlideUploadPromises = files.mobileSlideImages.map((slideFile, i) =>
+        uploadImage({
+          buffer: slideFile.buffer,
+          folder: `${businessFolder}/mobile-slides`,
+          publicId: `mobile_slide_${Date.now()}_${i}`,
+          mimetype: slideFile.mimetype,
+          originalname: slideFile.originalname,
+        })
+      );
+      const mobileSlideResults = await Promise.all(mobileSlideUploadPromises);
+      newMobileSlideUrls = mobileSlideResults.map((r) => r.secure_url);
+    }
+
+    business.mobileSlideImages = [...keptMobileSlides, ...newMobileSlideUrls];
+  }
+
   // Handle product images upload
   if (files?.productImages && files.productImages.length > 0) {
     for (let i = 0; i < files.productImages.length; i++) {

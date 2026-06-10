@@ -83,8 +83,9 @@ router.post(
   upload.fields([
     { name: "logo", maxCount: 1 },
     { name: "backgroundImage", maxCount: 1 },
-    { name: "slideImages", maxCount: 10 }, // Support multiple slide images
-    { name: "productImages", maxCount: 20 }, // Support multiple product images
+    { name: "slideImages", maxCount: 10 },
+    { name: "mobileSlideImages", maxCount: 10 },
+    { name: "productImages", maxCount: 20 },
   ]),
   async (req, res, next) => {
     try {
@@ -151,6 +152,11 @@ router.patch(
         payload.existingSlideImages = typeof req.body.existingSlideImages === 'string'
           ? JSON.parse(req.body.existingSlideImages)
           : req.body.existingSlideImages;
+      }
+      if (req.body.existingMobileSlideImages !== undefined) {
+        payload.existingMobileSlideImages = typeof req.body.existingMobileSlideImages === 'string'
+          ? JSON.parse(req.body.existingMobileSlideImages)
+          : req.body.existingMobileSlideImages;
       }
       if (req.body.removeLogo !== undefined) payload.removeLogo = req.body.removeLogo;
       if (req.body.removeBackgroundImage !== undefined)
