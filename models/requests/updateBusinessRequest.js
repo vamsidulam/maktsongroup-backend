@@ -7,7 +7,8 @@ const updateBusinessRequest = z.object({
   shortNote: z.string().optional(),
   products: z.array(z.object({
     name: z.string().min(1, "Product name is required"),
-    description: z.string().optional().default("")
+    description: z.string().optional().default(""),
+    image: z.string().optional().default(""),
   })).optional(),
   existingSlideImages: z.array(z.string()).optional(),
   existingMobileSlideImages: z.array(z.string()).optional(),

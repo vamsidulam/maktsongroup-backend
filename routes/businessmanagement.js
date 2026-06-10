@@ -136,6 +136,7 @@ router.patch(
     { name: "logo", maxCount: 1 },
     { name: "backgroundImage", maxCount: 1 },
     { name: "slideImages", maxCount: 10 },
+    { name: "mobileSlideImages", maxCount: 10 },
     { name: "productImages", maxCount: 20 },
   ]),
   async (req, res, next) => {
@@ -146,7 +147,17 @@ router.patch(
       if (req.body.category !== undefined) payload.category = req.body.category;
       if (req.body.shortNote !== undefined) payload.shortNote = req.body.shortNote;
       if (req.body.products !== undefined) {
-        payload.products = JSON.parse(req.body.products);
+        try {
+          payload.products = typeof req.body.products === 'string'
+            ? JSON.parse(req.body.products)
+            : req.body.products;
+        } catch (e) {
+          return res.status(400).json({
+            success: false,
+            error: "ValidationError",
+            issues: [{ path: "products", message: "Invalid JSON format for products" }],
+          });
+        }
       }
       if (req.body.existingSlideImages !== undefined) {
         payload.existingSlideImages = typeof req.body.existingSlideImages === 'string'
@@ -164,7 +175,8 @@ router.patch(
       if (req.body.removeProductImages !== undefined)
         payload.removeProductImages = req.body.removeProductImages;
 
-      const hasAnyField = Object.keys(payload).length > 0 || !!req.files;
+      const hasFiles = req.files && Object.values(req.files).some(arr => arr.length > 0);
+      const hasAnyField = Object.keys(payload).length > 0 || hasFiles;
       if (!hasAnyField) {
         return res.status(400).json({
           success: false,
