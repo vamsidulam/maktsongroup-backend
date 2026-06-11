@@ -5,6 +5,7 @@ const updateBusinessRequest = z.object({
   description: z.string().min(1, "Description is required").trim().optional(),
   category: z.string().min(1, "Category is required").trim().optional(),
   shortNote: z.string().optional(),
+  sequence: z.coerce.number().optional(),
   products: z.array(z.object({
     name: z.string().min(1, "Product name is required"),
     description: z.string().optional().default(""),

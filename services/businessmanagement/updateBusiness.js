@@ -14,6 +14,7 @@ async function updateBusiness({ id, patch, files, actor }) {
   const businessFolder = `businesses/${slugify(business.name)}`;
 
   // Update basic fields
+  if (patch.sequence !== undefined) business.sequence = patch.sequence;
   if (patch.name !== undefined) business.name = patch.name;
   if (patch.description !== undefined) business.description = patch.description;
   if (patch.category !== undefined) business.category = patch.category;

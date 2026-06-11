@@ -90,6 +90,7 @@ async function createBusiness({ input, files, actor }) {
   }
 
   const business = await Business.create({
+    sequence: input.sequence || 0,
     name: input.name,
     logo,
     backgroundImage,

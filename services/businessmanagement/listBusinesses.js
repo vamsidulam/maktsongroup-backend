@@ -13,7 +13,7 @@ async function listBusinesses({ page, limit, search, includeDeleted, noPaginatio
   // If noPagination is true, return all results
   if (noPagination) {
     const rows = await Business.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ sequence: 1, createdAt: -1 })
       .lean();
 
     // Transform _id to id for frontend compatibility
@@ -34,7 +34,7 @@ async function listBusinesses({ page, limit, search, includeDeleted, noPaginatio
 
   const [rows, total] = await Promise.all([
     Business.find(filter)
-      .sort({ createdAt: -1 })
+      .sort({ sequence: 1, createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean(),

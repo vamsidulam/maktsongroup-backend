@@ -142,6 +142,7 @@ router.patch(
   async (req, res, next) => {
     try {
       const payload = {};
+      if (req.body.sequence !== undefined) payload.sequence = req.body.sequence;
       if (req.body.name !== undefined) payload.name = req.body.name;
       if (req.body.description !== undefined) payload.description = req.body.description;
       if (req.body.category !== undefined) payload.category = req.body.category;

@@ -2,6 +2,7 @@ const { Schema, model, models, Types } = require("mongoose");
 
 const businessSchema = new Schema(
   {
+    sequence: { type: Number, default: 0 },                  // Display order
     name: { type: String, required: true, trim: true, index: true },
     logo: { type: String, default: "" },                    // Logo image URL
     backgroundImage: { type: String, default: "" },         // Background/hero image URL
