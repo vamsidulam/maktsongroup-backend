@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-async function sendContactEmail({ email }) {
+async function sendContactEmail({ name, email, phone }) {
   const ownerEmail = process.env.OWNER_EMAIL;
   const appEmail = process.env.APP_EMAIL;
   const appPassword = process.env.APP_PASSWORD;
@@ -120,8 +120,18 @@ async function sendContactEmail({ email }) {
               <p>Someone has expressed interest in getting in touch with MAKTSON GROUP.</p>
 
               <div class="info-box">
+                <div class="info-label">Name</div>
+                <div class="info-value">${name}</div>
+              </div>
+
+              <div class="info-box">
                 <div class="info-label">Email Address</div>
                 <div class="info-value">${email}</div>
+              </div>
+
+              <div class="info-box">
+                <div class="info-label">Phone Number</div>
+                <div class="info-value">${phone}</div>
               </div>
 
               <div class="info-box">
@@ -151,7 +161,9 @@ async function sendContactEmail({ email }) {
 
       Someone has expressed interest in getting in touch.
 
+      Name: ${name}
       Email Address: ${email}
+      Phone Number: ${phone}
       Received At: ${new Date().toLocaleString()}
 
       Please reach out to this potential client at your earliest convenience.
