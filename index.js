@@ -16,8 +16,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:8082",
-      "http://localhost:8080",
-      process.env.FRONTEND_URL,
+      "ht
     ],
     credentials: true,
   })
